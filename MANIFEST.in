@@ -1,0 +1,20 @@
+include README.md
+include README.zh-CN.md
+include LICENSE
+include CHANGELOG.md
+include CHANGELOG.zh-CN.md
+include SECURITY.md
+include .env.example
+include pyproject.toml
+include docs/README.md
+include docs/usage.md
+include docs/usage.en.md
+include docs/api-login-filelist.en.md
+include docs/api-login-download-share.md
+include docs/api-login-download-share.en.md
+include docs/api-login-filelist.md
+recursive-include src/ugnas *
+global-exclude *.pyc
+prune captures
+prune tools
+exclude .env
