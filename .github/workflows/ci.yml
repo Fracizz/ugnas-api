@@ -34,3 +34,18 @@ jobs:
       - run: uv sync --extra dev
       - run: uv build --clear
       - run: uv run twine check dist/*
+
+  rust-cli:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: unas-cli
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install 1.89.0 --profile minimal
+      - run: cargo +1.89.0 test --locked
+      - run: cargo +1.89.0 build --release --locked

@@ -1,0 +1,32 @@
+[package]
+name = "unas-cli"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+description = "Command-line client for UGREEN UGOS Pro NAS"
+license = "MIT"
+publish = false
+
+[dependencies]
+base64 = "0.22"
+bytes = "1"
+clap = { version = "4.5", default-features = false, features = ["derive", "std", "help", "usage", "error-context", "suggestions"] }
+md5 = "0.7"
+percent-encoding = "2"
+rand = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "multipart", "rustls-tls"] }
+rpassword = "7"
+rsa = "0.9"
+same-file = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+uuid = { version = "1", features = ["v4", "v5"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
+[profile.release]
+opt-level = "s"
+lto = "thin"
+strip = "symbols"

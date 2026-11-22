@@ -50,6 +50,7 @@ nas.download("/volume1/share/archive.zip", r"C:\tmp\archive.zip")
 - 创建外链、现场签发一次性直链，以及安全下载分享文件。
 - 查询卷容量、路径剩余空间和异步目录占用。
 - Python API 与 `ugnas` 命令行工具。
+- Rust 独立命令行工具 `unas-cli`。 [构建与使用](unas-cli/README.md)
 
 ## 安全注意事项
 
