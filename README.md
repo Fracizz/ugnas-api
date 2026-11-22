@@ -19,7 +19,7 @@ external sharing, storage queries, and resilient transfers.
 - External share creation, one-shot direct URLs, and safe shared-file downloads.
 - Volume capacity, path free-space, and asynchronous directory-size queries.
 - Python API and the `ugnas` command-line interface.
-- Standalone Rust CLI with [build and usage instructions](unas-cli/README.md).
+- Standalone Rust CLI. [Usage](unas-cli/README.md) · [Agent skill](skills/unas-cli/SKILL.md)
 
 ## Installation
 

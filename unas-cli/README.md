@@ -1,19 +1,21 @@
 # unas-cli
 
-用 Rust 管理绿联 UGOS Pro NAS，支持 Windows 和 Linux。编译后的命令可直接运行，无需安装 Python。
+A standalone Rust command-line client for UGREEN UGOS Pro NAS devices. The Windows and Linux x86_64 binaries run without Python. The Linux build is statically linked. [Downloads](https://github.com/Fracizz/ugnas-api/releases?q=unas-cli)
 
-## 构建与安装
+## Install
 
-在仓库根目录使用 Rust 1.89 或更新版本。
+Extract the archive and run `./unas-cli --help` on Linux or `.\unas-cli.exe --help` in PowerShell. Verify the archive against the release's `SHA256SUMS` file.
+
+From the repository root, build or install with Rust 1.89 or later.
 
 ```sh
 cargo build --release --locked --manifest-path unas-cli/Cargo.toml
 cargo install --locked --path unas-cli
 ```
 
-构建产物位于 `unas-cli/target/release/`，文件名为 `unas-cli`（Linux）或 `unas-cli.exe`（Windows）。在目标平台构建对应的版本。
+To install the agent skill, extract the skill ZIP into your agent's skills directory. The extracted folder contains `unas-cli/SKILL.md`. [Skill source](https://github.com/Fracizz/ugnas-api/blob/master/skills/unas-cli/SKILL.md)
 
-## 连接 NAS
+## Connect
 
 ```sh
 unas-cli --profile home config save --base-url http://192.168.1.20:9999 --username myuser
@@ -22,11 +24,11 @@ unas-cli --profile home roots
 unas-cli --profile home ls --path /volume1/share --all --json
 ```
 
-配置和会话放在 `~/.unas-cli/profiles/<profile>/`。设置 `UNAS_HOME` 可更改配置根目录。设置取值优先级为命令参数、环境变量、已保存配置。可用的环境变量有 `UNAS_PROFILE`、`UNAS_BASE_URL`、`UNAS_USERNAME`、`UNAS_PUBLIC_BASE_URL`、`UNAS_SAVE_DIR` 和 `UNAS_INSECURE`，也可使用对应的 `UGNAS_*` 变量。
+Profiles and sessions live in `~/.unas-cli/profiles/<profile>/`. Set `UNAS_HOME` to override the root. Flags override environment variables, which override saved settings. Supported variables include `UNAS_PROFILE`, `UNAS_BASE_URL`, `UNAS_USERNAME`, `UNAS_PUBLIC_BASE_URL`, `UNAS_SAVE_DIR`, and `UNAS_INSECURE`. Corresponding `UGNAS_*` variables are also supported.
 
-密码可通过 `--prompt-password`、`--password-stdin` 或 `UNAS_PASSWORD` 提供。CLI 保存 NAS 会话，Windows 使用当前用户的 DPAPI 保护令牌，Unix 上会话文件仅当前用户可读写。用 `logout` 清除本地会话，或用 `--no-session` 执行一次性命令。HTTPS 默认验证证书，自签名设备可显式指定 `--insecure`。
+Supply the NAS password with `--prompt-password`, `--password-stdin`, or `UNAS_PASSWORD`. Windows protects saved session tokens with DPAPI. On Unix, session files are readable and writable only by the current user. Use `logout` to clear a local session or `--no-session` to skip the session cache. HTTPS verifies certificates by default. Use `--insecure` for a trusted device with a self-signed certificate.
 
-## 常用命令
+## Common commands
 
 ```sh
 unas-cli --profile home mkdir --path /volume1/share/inbox
@@ -37,24 +39,23 @@ unas-cli --profile home share --path /volume1/share/inbox/archive.zip --days 7
 unas-cli download-share --url 'https://example.ug.link/filemgr/share-download/?id=ID' --dest ./archive.zip
 ```
 
-- `upload --dest` 是 NAS 目录，可用 `--name` 指定远端文件名。
-- `download --dest` 和 `download-share --dest` 接受本地文件路径、已存在的目录或以斜杠结尾的目录路径。下载到已存在的文件需指定 `--overwrite`。服务端提供文件验证标识时，可在中断后继续下载。
-- `copy` 和 `move` 会等待新目标路径出现。目标已经存在时返回 `submitted`，表示 NAS 已接受请求。
-- 带口令的分享可用 `--prompt-share-password`、`--share-password-stdin` 或 `UNAS_SHARE_PASSWORD`。自定义分享域名需要显式配置 `--public-base-url`。
-- `share-direct` 可生成一次性直链。输出默认隐藏 URL 中的令牌和密码，使用 `--show-sensitive` 获取完整链接。
-- 用 `unas-cli --help` 查看命令，用 `unas-cli <命令> --help` 查看参数。
+- Upload destinations are NAS directories. Use `--name` to set the remote filename.
+- A download destination can be a file path, an existing directory, or a directory path ending in a slash. Use `--overwrite` to replace a local file. Downloads resume when the server provides a validator. Use `--dry-run` to probe the download.
+- Copy and move wait for new target paths to appear. A pre-existing target returns `submitted` when the NAS accepts the request.
+- For password-protected shares, use `--prompt-share-password`, `--share-password-stdin`, or `UNAS_SHARE_PASSWORD`. Configure `--public-base-url` for custom share hosts. `share-direct` redacts its short-lived link by default. Use `--show-sensitive` to get the complete link.
+- Run `unas-cli <command> --help` for all options.
 
-## 脚本调用
+## Automation
 
-`--json` 将结果作为一个 JSON 文档写入标准输出。错误、密码提示和传输进度走标准错误。
+`--json` writes one JSON document to stdout. Errors, prompts, and progress go to stderr.
 
-| 退出码 | 含义 |
+| Exit code | Meaning |
 |---|---|
-| 0 | 成功 |
-| 1 | `exists` 查询的路径不存在 |
-| 2 | 参数或配置错误 |
-| 3 | 认证失败 |
-| 4 | 网络错误 |
-| 5 | NAS / HTTP API 错误 |
-| 6 | 本地 I/O 或响应处理错误 |
-| 7 | 等待 NAS 异步任务超时 |
+| 0 | Success |
+| 1 | `exists` found no path |
+| 2 | Invalid arguments or configuration |
+| 3 | Authentication failure |
+| 4 | Network error |
+| 5 | NAS or HTTP API error |
+| 6 | Local I/O or response processing error |
+| 7 | NAS task timeout |
